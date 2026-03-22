@@ -34,3 +34,26 @@ Generic embedding models often retrieve documents based on superficial keyword s
 3. **Retrieval:** Used the fine-tuned model to fetch the top-3 most relevant clinical contexts.
 4. **Generation:** Passed context to a local Llama 3 instance with a strict "answer only from context" prompt.
 5. **Validation:** Audited the output using RAGAS to verify that the improved retrieval directly reduced hallucination rates.
+
+## 🔍 What is MultipleNegativesRankingLoss?
+This loss function is used in contrastive learning to teach the model to distinguish between relevant and irrelevant contexts.
+🔧 Simple Example:
+Imagine you're training on this triplet:
+- Query: “What is the treatment for hypertension?”
+- Positive: “Hypertension is treated with ACE inhibitors and lifestyle changes.”
+- Negatives: Other passages in the same batch like “Diabetes is managed with insulin.”
+The model:
+- Pulls the query and positive closer in embedding space.
+- Pushes all other negatives (from the same batch) farther away.
+This is efficient because every other positive in the batch becomes a negative for the current query, reducing the need for manually curated hard negatives.
+
+## 🤔 Why Fine-Tune Embeddings Instead of Using Base Models?
+Base models are trained on general-purpose corpora (Wikipedia, Common Crawl), which:
+- Prioritize word-level similarity over fact-level relevance.
+- Often fail in clinical nuance, e.g., confusing “hypertension” with “high blood pressure” without understanding treatment context.
+🧠 Example:
+- Query: “What’s the first-line therapy for atrial fibrillation?”
+- Base Model Retrieval: “Atrial fibrillation is a heart rhythm disorder.”
+- Fine-Tuned Model Retrieval: “Beta blockers and anticoagulants are first-line treatments for atrial fibrillation.”
+Fine-tuning ensures the model retrieves factually relevant passages, not just semantically similar ones.
+
